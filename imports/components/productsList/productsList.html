@@ -1,0 +1,269 @@
+<header>
+  <h1>Lista de Productos</h1>
+  <login-buttons></login-buttons>
+  <br>
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#nuevoProducto" ng-if="$ctrl.isloged()">
+    Añadir Nuevo Producto
+  </button>
+
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#verCarrito" ng-if="$ctrl.isloged()">
+    Ver carrito
+  </button>
+
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#compras" ng-if="$ctrl.isloged()">
+    Historial de compras
+  </button>
+
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#misCompras" ng-if="$ctrl.isloged()">
+    Mis compras
+  </button>
+
+  <div class="modal fade" id="nuevoProducto" tabindex="-1" role="dialog" aria-labelledby="nuevoProductoLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="nuevoProductoLabel"> Nuevo Producto </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form class="container" ng-submit="$ctrl.addProduct($ctrl)">
+            <div class="row justify-content-center">
+              <label class="col-3"> Nombre: </label>
+              <input class="col-8" ng-model="$ctrl.nombre" type="text" name="nombre" placeholder="Ingrese nombre del nuevo producto"/>
+            </div>
+
+            <div class="row justify-content-center">
+              <label class="col-3"> Categoria: </label>
+              <input class="col-8" ng-model="$ctrl.categoria" type="text" name="categoria" placeholder="Ingrese la categoria del nuevo producto"/>
+            </div>
+
+            <div class="row justify-content-center">
+              <label class="col-3"> Descripcion: </label>
+              <textarea class="col-8" ng-model="$ctrl.descripcion" type="text" name="descripcion" placeholder="Ingrese una descripcion del nuevo producto"> </textarea>
+            </div>
+
+            <div class="row justify-content-center">
+              <label class="col-3"> Valor: </label>
+              <input class="col-8" ng-model="$ctrl.valor" type="number" name="valor" placeholder="Ingrese valor" />
+            </div>
+
+            <div class="row justify-content-center">
+              <label class="col-3"> Strock: </label>
+              <input class="col-8" ng-model="$ctrl.stock" type="number" name="stock" placeholder="Ingrese stock" />
+            </div>
+
+            <div class="row justify-content-center">
+              <input class="col-6" ng-model="$ctrl.image" onchange="angular.element(this).scope().fileSelected(this)" type="file" name="imagen" />
+            </div>
+            <div class="row justify-content-center">
+              <img id="img" height="150" >
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" ng-click="$ctrl.addProduct($ctrl)" data-dismiss="modal" ng-disabled="!$ctrl.stock || !$ctrl.categoria || !$ctrl.nombre || !$ctrl.valor || !$ctrl.descripcion"> Confirmar </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="verCarrito" tabindex="-1" role="dialog" aria-labelledby="verCarritoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="verCarritoLabel"> Carrito de compras </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container">
+            <div class="row" ng-repeat="prod in $ctrl.carrito">
+              <div class="col-3">
+                <img src={{prod.imagen}} class="card-img-top" style="height: 10rem" alt="imagen no ingresada">
+              </div>
+              <div class="col-5">
+                <h5 class="card-title"> {{prod.nombre}} - {{prod.categoria}} </h5>
+                <p class="card-text"> {{prod.descripcion}} </p>
+              </div>
+              <div class="col-2">
+                valor unitario: {{prod.valor}}
+                <br>
+                valor total: {{prod.valor * prod.cantidad}}
+              </div>
+              <div class="col-2">
+
+                <button type="button" class="btn btn-success" ng-click="$ctrl.masCantidad(prod)" ng-disabled="prod.cantidad >= prod.stock">
+                  +
+                </button>
+                <br>
+                {{prod.cantidad}}
+                <br>
+                <button type="button" class="btn btn-secondary" ng-click="$ctrl.menosCantidad(prod)">
+                  -
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          Total: {{$ctrl.total()}}
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="$ctrl.comprar()" ng-disabled="$ctrl.carrito.length == 0"> Comprar </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="compras" tabindex="-1" role="dialog" aria-labelledby="comprasLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="comprasLabel"> Historial de compras </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-4">
+                <h4> User </h4>
+              </div>
+              <div class="col-4">
+                <h4> Productos </h4>
+              </div>
+              <div class="col-w">
+                <h4> Total </h4>
+              </div>
+            </div>
+
+            <div class="row justify-content-center" ng-repeat="compra in $ctrl.compras">
+              <div class="col-4">
+                Compra hecha por: {{compra.user.username}}
+                <br>
+                el: {{compra.createdAt}}
+              </div>
+              <div class="col-4">
+                <p ng-repeat="prod in compra.productos">
+                  {{prod.nombre}} x {{prod.cantidad}}
+                </p>
+              </div>
+              <div class="col-2">
+                {{compra.total}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="misCompras" tabindex="-1" role="dialog" aria-labelledby="misComprasLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="misComprasLabel"> Historial de mis Compras </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-4">
+                <h4> User </h4>
+              </div>
+              <div class="col-4">
+                <h4> Productos </h4>
+              </div>
+              <div class="col-w">
+                <h4> Total </h4>
+              </div>
+            </div>
+
+            <div class="row justify-content-center" ng-repeat="compra in $ctrl.misCompras">
+              <div class="col-4">
+                Compra hecha por: {{compra.user.username}}
+                <br>
+                el: {{compra.createdAt}}
+                <br>
+              </div>
+              <div class="col-4">
+                <p ng-repeat="prod in compra.productos">
+                  {{prod.nombre}} x {{prod.cantidad}}
+                </p>
+              </div>
+              <div class="col-2">
+                {{compra.total}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="row">
+    <div class="col-3" ng-repeat="prod in $ctrl.products">
+      <div class="card">
+        <img src={{prod.imagen}} class="card-img-top" style="height: 10rem" alt="imagen no ingresada">
+        <div class="card-body">
+          <h5 class="card-title"> {{prod.nombre}}  <span class="btn btn-danger" ng-click="$ctrl.removeProduct(prod)" ng-if="$ctrl.isloged()"> X </span> </h5>
+          <p class="card-text"> {{prod.descripcion}} </p>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">{{prod.categoria}}</li>
+        </ul>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">{{prod.valor}}</li>
+        </ul>
+        <div class="justify-content-center" style="margin: auto">
+          STOCK: {{prod.stock}}
+          <button type="button" class="btn btn-success" ng-click="$ctrl.masStock(prod)" ng-if="$ctrl.isloged()">
+            +
+          </button>
+
+          <button type="button" class="btn btn-secondary" ng-click="$ctrl.menosStock(prod)" ng-if="$ctrl.isloged()">
+            -
+          </button>
+        </div>
+        <div class="card-body">
+          <button type="button" class="btn btn-primary" ng-disabled="prod.stock <= 0" ng-click="$ctrl.anadirCarrito(prod)" ng-if="$ctrl.isloged() && !$ctrl.encarrito(prod)">
+            Añadir al carrito
+          </button>
+          <button type="button" class="btn btn-primary" ng-if="!$ctrl.isloged()" data-toggle="modal" data-target="#login">
+            Añadir al carrito
+          </button>
+          <button type="button" class="btn btn-danger" ng-click="$ctrl.sacarcarrito(prod)" ng-if="$ctrl.encarrito(prod)">
+            Sacar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="login" tabindex="-1" role="dialog" aria-labelledby="loginLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xs" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="loginLabel"> Primero Inicie Session  </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
